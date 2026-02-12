@@ -39,8 +39,7 @@ public class OutfitServiceImpl implements OutfitService {
         if (!bottoms.isEmpty()) {
             outfit.setBottomwear(bottoms.get(0));
         }
-        outfit.setAccessories(accessories);
-
+        outfit.setAccessories(accessories.stream().limit(3).toList());
         return outfitRepository.save(outfit);
     }
 
