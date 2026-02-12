@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Outfit Suggestion</title>
+</head>
+<body>
+    <h1>Your Outfit Suggestion</h1>
+    <div th:if="${outfit != null}">
+        <h2>Topwear</h2>
+        <div th:if="${outfit.topwear != null}">
+            <p th:text="${outfit.topwear.name}"></p>
+            <img th:src="${outfit.topwear.imagePath}" alt="Topwear Image" />
+        </div>
+        <div th:if="${outfit.topwear == null}">
+            <p>No topwear suggested.</p>
+        </div>
+
+        <h2>Bottomwear</h2>
+        <div th:if="${outfit.bottomwear != null}">
+            <p th:text="${outfit.bottomwear.name}"></p>
+            <img th:src="${outfit.bottomwear.imagePath}" alt="Bottomwear Image" />
+        </div>
+        <div th:if="${outfit.bottomwear == null}">
+            <p>No bottomwear suggested.</p>
+        </div>
+
+        <h2>Accessories</h2>
+        <ul th:if="${outfit.accessories != null and !outfit.accessories.empty}">
+            <li th:each="accessory : ${outfit.accessories}">
+                <span th:text="${accessory.name}"></span>
+                <img th:src="${accessory.imagePath}" alt="Accessory Image" />
+            </li>
+        </ul>
+        <div th:if="${outfit.accessories == null or outfit.accessories.empty}">
+            <p>No accessories suggested.</p>
+        </div>
+
+        <h2>Try-On View</h2>
+        <!-- Placeholder for mannequin image -->
+        <div id="mannequin">
+            <!-- This would be where the mannequin image is rendered -->
+            <p>Mannequin View Placeholder</p>
+        </div>
+
+        <form action="/suggest" method="post">
+            <input type="hidden" name="climate" th:value="${outfit.climate}" />
+            <input type="hidden" name="personType" th:value="${outfit.personType}" />
+            <button type="submit">Refresh Outfit</button>
+        </form>
+    </div>
+    <div th:if="${outfit == null}">
+        <p>No outfit found for the selected criteria.</p>
+    </div>
+    <a href="/">Back to Home</a>
+</body>
+</html>

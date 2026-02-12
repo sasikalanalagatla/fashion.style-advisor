@@ -4,11 +4,14 @@ import com.fashion.style_advisor.enums.Climate;
 import com.fashion.style_advisor.enums.PersonType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Outfit {
 
     @Id

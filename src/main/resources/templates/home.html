@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Style Advisor</title>
+</head>
+<body>
+    <h1>Welcome to Style Advisor</h1>
+    <form action="/suggest" method="post">
+        <label for="climate">Select Climate:</label>
+        <select name="climate" id="climate">
+            <option th:each="climate : ${climates}" th:value="${climate}" th:text="${climate}"></option>
+        </select>
+        <br/>
+        <label for="personType">Select Person Type:</label>
+        <select name="personType" id="personType">
+            <option th:each="type : ${personTypes}" th:value="${type}" th:text="${type}"></option>
+        </select>
+        <br/>
+        <button type="submit">Get Outfit Suggestion</button>
+    </form>
+</body>
+</html>
