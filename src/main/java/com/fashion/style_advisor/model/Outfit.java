@@ -38,4 +38,7 @@ public class Outfit {
     )
     private List<ClothingItem> accessories;
 
+    private int likes;
+    private int dislikes;
+
 }
