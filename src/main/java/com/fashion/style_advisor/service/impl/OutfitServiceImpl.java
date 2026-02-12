@@ -6,6 +6,7 @@ import com.fashion.style_advisor.enums.PersonType;
 import com.fashion.style_advisor.model.ClothingItem;
 import com.fashion.style_advisor.model.Outfit;
 import com.fashion.style_advisor.repository.ClothingItemRepository;
+import com.fashion.style_advisor.repository.OutfitRepository;
 import com.fashion.style_advisor.service.OutfitService;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +16,11 @@ import java.util.List;
 public class OutfitServiceImpl implements OutfitService {
 
     private final ClothingItemRepository clothingItemRepository;
+    private final OutfitRepository outfitRepository;
 
-    public OutfitServiceImpl(ClothingItemRepository clothingItemRepository) {
+    public OutfitServiceImpl(ClothingItemRepository clothingItemRepository, OutfitRepository outfitRepository) {
         this.clothingItemRepository = clothingItemRepository;
+        this.outfitRepository = outfitRepository;
     }
 
     @Override
@@ -38,6 +41,16 @@ public class OutfitServiceImpl implements OutfitService {
         }
         outfit.setAccessories(accessories);
 
-        return outfit;
+        return outfitRepository.save(outfit);
+    }
+
+    @Override
+    public List<Outfit> getMostLikedOutfits() {
+        return outfitRepository.findTop10ByOrderByLikesDesc();
+    }
+
+    @Override
+    public Outfit getOutfitById(Long id) {
+        return outfitRepository.findById(id).orElse(null);
     }
 }

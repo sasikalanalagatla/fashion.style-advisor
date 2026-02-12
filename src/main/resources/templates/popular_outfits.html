@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Popular Outfits</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1em;
+        }
+
+        .outfits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .outfit-summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out backwards;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .outfit-summary-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .climate-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .items-preview {
+            flex-grow: 1;
+            margin-bottom: 20px;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .item-icon {
+            font-size: 1.2em;
+            width: 30px;
+            text-align: center;
+        }
+
+        .item-name {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .vote-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: auto;
+        }
+
+        .vote-count {
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 1.1em;
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .vote-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.2s;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.2);
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .btn-home {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn-home:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>🏆 Popular Outfits</h1>
+        <p>Top rated styles by our community</p>
+    </div>
+
+    <div class="outfits-grid" th:if="${not #lists.isEmpty(outfits)}">
+        <div th:each="outfit : ${outfits}" class="outfit-summary-card">
+            <div class="card-header">
+                <span class="climate-badge" th:text="${outfit.climate}">Climate</span>
+                <span style="color: #666; font-size: 0.9em;" th:text="${outfit.personType}">Person</span>
+            </div>
+
+            <div class="items-preview">
+                <div class="item-row" th:if="${outfit.topwear != null}">
+                    <span class="item-icon">👕</span>
+                    <span class="item-name" th:text="${outfit.topwear.name}">Top Name</span>
+                </div>
+                <div class="item-row" th:if="${outfit.bottomwear != null}">
+                    <span class="item-icon">👖</span>
+                    <span class="item-name" th:text="${outfit.bottomwear.name}">Bottom Name</span>
+                </div>
+                <div class="item-row" th:if="${not #lists.isEmpty(outfit.accessories)}">
+                    <span class="item-icon">👜</span>
+                    <span class="item-name" th:text="${#lists.size(outfit.accessories) + ' Accessories'}">Accessories</span>
+                </div>
+            </div>
+
+            <div class="vote-section">
+                <div class="vote-count">
+                    <span th:text="${outfit.likes}">0</span> Likes
+                </div>
+                <div class="vote-buttons">
+                    <form th:action="@{/vote/{id}/like(id=${outfit.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="vote-btn" title="Like">👍</button>
+                    </form>
+                    <form th:action="@{/vote/{id}/dislike(id=${outfit.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="vote-btn" title="Dislike">👎</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(outfits)}" class="empty-state">
+        <h2>No popular outfits yet!</h2>
+        <p>Be the first to generate and vote on some styles.</p>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="/" class="btn-home">🏠 Back to Home</a>
+    </div>
+</div>
+</body>
+</html>
