@@ -286,12 +286,9 @@
       }
 
       .mannequin-section {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 25px;
-        padding: 40px;
+        background: transparent;
+        padding: 20px;
         text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         margin-bottom: 40px;
         animation: slideUp 0.6s ease-out 0.4s backwards;
       }
@@ -304,32 +301,58 @@
       }
 
       #mannequin {
-        background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        height: 600px;
+        margin: 0 auto;
+        background: #ffffff;
         border-radius: 20px;
-        padding: 80px 40px;
-        min-height: 450px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 3px dashed #cbd5e1;
-        position: relative;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
         overflow: hidden;
+        border: 1px solid #e5e7eb;
       }
 
-      #mannequin::before {
-        content: "👤";
-        font-size: 120px;
-        opacity: 0.1;
+      .mannequin-base {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
         position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
       }
 
-      #mannequin p {
-        color: #666;
-        font-size: 1.3em;
-        font-weight: 500;
-        position: relative;
-        z-index: 1;
+      .mannequin-layer {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .mannequin-layer:hover {
+        transform: translateX(-50%) scale(1.05);
+        z-index: 10;
+      }
+
+      .topwear-layer {
+        top: 18%;
+        width: 45%;
+        z-index: 3;
+      }
+
+      .bottomwear-layer {
+        top: 45%;
+        width: 42%;
+        z-index: 2;
+      }
+
+      .accessory-layer {
+        top: 5%;
+        left: 80%;
+        width: 25%;
+        z-index: 4;
       }
 
       .action-section {
@@ -635,11 +658,316 @@
           </div>
         </div>
 
-        <!-- Mannequin Section -->
+        <!-- Avatar Display Section with Outfit Preview -->
         <div class="mannequin-section">
-          <h2>👤 Virtual Try-On</h2>
-          <div id="mannequin">
-            <p>3D Mannequin View Coming Soon</p>
+          <h2>👤 Avatar with Your Outfit</h2>
+
+          <!-- Show message if avatar is missing -->
+          <div
+            th:if="${avatar == null}"
+            style="
+              padding: 20px;
+              text-align: center;
+              color: #666;
+              background: rgba(255, 255, 255, 0.95);
+              border-radius: 20px;
+              margin-top: 30px;
+            "
+          >
+            <p style="margin-bottom: 15px; font-size: 1.1em">
+              Avatar not found. Please create your avatar first.
+            </p>
+            <a
+              href="/avatar-builder"
+              style="
+                display: inline-block;
+                padding: 10px 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 10px;
+                font-weight: 600;
+              "
+              >Create Avatar</a
+            >
+          </div>
+
+          <!-- Show avatar if it exists -->
+          <div
+            th:if="${avatar != null}"
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin-top: 20px;
+              width: 100%;
+            "
+          >
+            <div
+              style="
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 20px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                width: fit-content;
+              "
+            >
+              <div
+                id="avatar-container"
+                style="
+                  position: relative;
+                  width: 350px;
+                  height: 450px;
+                  margin: 0 auto;
+                  background: linear-gradient(135deg, #f0f4ff, #f9f9f9);
+                  border-radius: 20px;
+                  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+                  border: 2px solid #e5e7eb;
+                  overflow: hidden;
+                "
+              >
+                <!-- Avatar SVG -->
+                <svg
+                  style="
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                  "
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 300 450"
+                  preserveAspectRatio="xMidYMid slice"
+                >
+                  <!-- Head -->
+                  <circle
+                    cx="150"
+                    cy="80"
+                    r="50"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                    stroke="#d4a574"
+                    stroke-width="2"
+                  />
+
+                  <!-- Hair -->
+                  <ellipse
+                    cx="150"
+                    cy="60"
+                    rx="55"
+                    ry="40"
+                    th:attr="fill=${avatar.hairColor != null ? (avatar.hairColor == 'black' ? '#1a1a1a' : (avatar.hairColor == 'brown' ? '#6b4423' : (avatar.hairColor == 'blonde' ? '#d4a574' : '#c41e3a'))) : '#1a1a1a'}"
+                  />
+                  <path
+                    d="M 95 80 Q 90 100 100 120 L 200 120 Q 210 100 205 80"
+                    th:attr="fill=${avatar.hairColor != null ? (avatar.hairColor == 'black' ? '#1a1a1a' : (avatar.hairColor == 'brown' ? '#6b4423' : (avatar.hairColor == 'blonde' ? '#d4a574' : '#c41e3a'))) : '#1a1a1a'}"
+                  />
+
+                  <!-- Left Eye White -->
+                  <ellipse cx="125" cy="70" rx="10" ry="14" fill="white" />
+                  <!-- Left Iris -->
+                  <circle
+                    cx="125"
+                    cy="75"
+                    r="6"
+                    th:attr="fill=${avatar.eyeColor != null ? (avatar.eyeColor == 'brown' ? '#8b4513' : (avatar.eyeColor == 'blue' ? '#4a90e2' : (avatar.eyeColor == 'green' ? '#2ecc71' : '#a67c52'))) : '#8b4513'}"
+                  />
+                  <!-- Left Pupil -->
+                  <circle cx="125" cy="75" r="3" fill="black" />
+
+                  <!-- Right Eye White -->
+                  <ellipse cx="175" cy="70" rx="10" ry="14" fill="white" />
+                  <!-- Right Iris -->
+                  <circle
+                    cx="175"
+                    cy="75"
+                    r="6"
+                    th:attr="fill=${avatar.eyeColor != null ? (avatar.eyeColor == 'brown' ? '#8b4513' : (avatar.eyeColor == 'blue' ? '#4a90e2' : (avatar.eyeColor == 'green' ? '#2ecc71' : '#a67c52'))) : '#8b4513'}"
+                  />
+                  <!-- Right Pupil -->
+                  <circle cx="175" cy="75" r="3" fill="black" />
+
+                  <!-- Nose -->
+                  <path
+                    d="M 150 75 L 150 95"
+                    stroke="#d4a574"
+                    stroke-width="2"
+                    fill="none"
+                  />
+
+                  <!-- Mouth -->
+                  <path
+                    d="M 130 105 Q 150 115 170 105"
+                    stroke="#dc143c"
+                    stroke-width="2.5"
+                    fill="none"
+                    stroke-linecap="round"
+                  />
+
+                  <!-- Neck -->
+                  <rect
+                    x="135"
+                    y="130"
+                    width="30"
+                    height="20"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                  />
+
+                  <!-- Shoulders -->
+                  <line
+                    x1="100"
+                    y1="150"
+                    x2="200"
+                    y2="150"
+                    stroke="#d4a574"
+                    stroke-width="3"
+                  />
+
+                  <!-- Body Base -->
+                  <ellipse
+                    cx="150"
+                    cy="200"
+                    rx="50"
+                    ry="70"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                    opacity="0.4"
+                    stroke="#d4a574"
+                    stroke-width="1"
+                  />
+
+                  <!-- Left Arm -->
+                  <line
+                    x1="100"
+                    y1="160"
+                    x2="60"
+                    y2="260"
+                    th:attr="stroke=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                  />
+                  <!-- Left Hand -->
+                  <circle
+                    cx="60"
+                    cy="270"
+                    r="8"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                  />
+
+                  <!-- Right Arm -->
+                  <line
+                    x1="200"
+                    y1="160"
+                    x2="240"
+                    y2="260"
+                    th:attr="stroke=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                  />
+                  <!-- Right Hand -->
+                  <circle
+                    cx="240"
+                    cy="270"
+                    r="8"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                  />
+
+                  <!-- Left Leg -->
+                  <line
+                    x1="125"
+                    y1="270"
+                    x2="120"
+                    y2="420"
+                    th:attr="stroke=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                    stroke-width="14"
+                    stroke-linecap="round"
+                  />
+                  <!-- Left Foot -->
+                  <ellipse
+                    cx="120"
+                    cy="430"
+                    rx="12"
+                    ry="8"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                  />
+
+                  <!-- Right Leg -->
+                  <line
+                    x1="175"
+                    y1="270"
+                    x2="180"
+                    y2="420"
+                    th:attr="stroke=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                    stroke-width="14"
+                    stroke-linecap="round"
+                  />
+                  <!-- Right Foot -->
+                  <ellipse
+                    cx="180"
+                    cy="430"
+                    rx="12"
+                    ry="8"
+                    th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+                  />
+                </svg>
+
+                <!-- Topwear Layer -->
+                <img
+                  th:if="${outfit.topwear != null}"
+                  th:src="${outfit.topwear.imagePath}"
+                  alt="Topwear"
+                  style="
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    top: 28%;
+                    width: 60%;
+                    max-height: 38%;
+                    z-index: 3;
+                    transition: all 0.3s ease;
+                    object-fit: contain;
+                    pointer-events: none;
+                  "
+                />
+
+                <!-- Bottomwear Layer -->
+                <img
+                  th:if="${outfit.bottomwear != null}"
+                  th:src="${outfit.bottomwear.imagePath}"
+                  alt="Bottomwear"
+                  style="
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    top: 58%;
+                    width: 52%;
+                    max-height: 32%;
+                    z-index: 2;
+                    transition: all 0.3s ease;
+                    object-fit: contain;
+                    pointer-events: none;
+                  "
+                />
+
+                <!-- Accessories Layer -->
+                <img
+                  th:if="${outfit.accessories != null and !outfit.accessories.empty}"
+                  th:src="${outfit.accessories[0].imagePath}"
+                  alt="Accessory"
+                  style="
+                    position: absolute;
+                    right: 8%;
+                    top: 18%;
+                    width: 28%;
+                    max-height: 22%;
+                    z-index: 4;
+                    transition: all 0.3s ease;
+                    object-fit: contain;
+                    pointer-events: none;
+                  "
+                />
+              </div>
+            </div>
+          </div>
           </div>
         </div>
 

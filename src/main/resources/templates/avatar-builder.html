@@ -1,0 +1,690 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Avatar Builder - Snapchat Style</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-header h1 {
+        color: white;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-weight: 700;
+      }
+
+      .page-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1em;
+      }
+
+      .avatar-builder-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      /* Avatar Preview */
+      .avatar-preview-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: slideUp 0.6s ease-out backwards;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .avatar-preview-section h2 {
+        color: #1e3c72;
+        font-size: 1.8em;
+        margin-bottom: 30px;
+        font-weight: 600;
+      }
+
+      .avatar-canvas {
+        position: relative;
+        width: 280px;
+        height: 350px;
+        background: linear-gradient(135deg, #f0f4ff, #f9f9f9);
+        border-radius: 20px;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+      }
+
+      /* Avatar SVG Components */
+      .avatar-svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Customization Controls */
+      .customization-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.6s ease-out 0.2s backwards;
+      }
+
+      .customization-section h2 {
+        color: #1e3c72;
+        font-size: 1.8em;
+        margin-bottom: 30px;
+        font-weight: 600;
+      }
+
+      .customization-group {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .customization-group:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .customization-group label {
+        display: block;
+        color: #1e3c72;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+      }
+
+      .option-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+      }
+
+      .option-btn {
+        padding: 12px 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        background: white;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        font-size: 0.9em;
+        text-align: center;
+      }
+
+      .option-btn:hover {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .option-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+      }
+
+      .color-option {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .color-option:hover {
+        transform: scale(1.1);
+      }
+
+      .color-option.active {
+        border-width: 3px;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+      }
+
+      .color-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 15px;
+      }
+
+      /* Action Buttons */
+      .action-section {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 2px solid #f0f0f0;
+        flex-wrap: wrap;
+        animation: slideUp 0.6s ease-out 0.4s backwards;
+      }
+
+      button,
+      .btn {
+        padding: 16px 40px;
+        border-radius: 15px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Poppins", sans-serif;
+        border: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #667eea;
+        border: 2px solid white;
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(255, 255, 255, 0.5);
+      }
+
+      @media (max-width: 768px) {
+        .avatar-builder-container {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        .page-header h1 {
+          font-size: 1.8em;
+        }
+
+        .option-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .action-section {
+          flex-direction: column;
+        }
+
+        button,
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>✨ Avatar Builder ✨</h1>
+        <p>Create your unique Snapchat-style avatar</p>
+      </div>
+
+      <div class="avatar-builder-container">
+        <!-- Avatar Preview Section -->
+        <div class="avatar-preview-section">
+          <h2>👤 Your Avatar</h2>
+          <div class="avatar-canvas">
+            <svg
+              class="avatar-svg"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 300"
+            >
+              <!-- Background -->
+              <rect width="200" height="300" fill="#f0f4ff" />
+
+              <!-- Face (circle) -->
+              <circle
+                id="face"
+                cx="100"
+                cy="90"
+                r="50"
+                th:attr="fill=${avatar.skinTone != null ? (avatar.skinTone == 'light' ? '#f4c2a0' : (avatar.skinTone == 'medium' ? '#d4a574' : '#9d7962')) : '#f4c2a0'}"
+              />
+
+              <!-- Hair -->
+              <path
+                id="hair"
+                th:attr="fill=${avatar.hairColor != null ? (avatar.hairColor == 'black' ? '#1a1a1a' : (avatar.hairColor == 'brown' ? '#6b4423' : (avatar.hairColor == 'blonde' ? '#d4a574' : '#c41e3a'))) : '#1a1a1a'}"
+                d="M 50 90 Q 50 30 100 30 Q 150 30 150 90 L 150 110 Q 100 100 50 110 Z"
+              />
+
+              <!-- Eyes (left) -->
+              <ellipse
+                id="left-eye"
+                cx="75"
+                cy="75"
+                rx="8"
+                ry="12"
+                fill="white"
+              />
+              <circle
+                id="left-iris"
+                cx="75"
+                cy="78"
+                r="5"
+                th:attr="fill=${avatar.eyeColor != null ? (avatar.eyeColor == 'brown' ? '#8b4513' : (avatar.eyeColor == 'blue' ? '#4a90e2' : (avatar.eyeColor == 'green' ? '#2ecc71' : '#a67c52'))) : '#8b4513'}"
+              />
+
+              <!-- Eyes (right) -->
+              <ellipse
+                id="right-eye"
+                cx="125"
+                cy="75"
+                rx="8"
+                ry="12"
+                fill="white"
+              />
+              <circle
+                id="right-iris"
+                cx="125"
+                cy="78"
+                r="5"
+                th:attr="fill=${avatar.eyeColor != null ? (avatar.eyeColor == 'brown' ? '#8b4513' : (avatar.eyeColor == 'blue' ? '#4a90e2' : (avatar.eyeColor == 'green' ? '#2ecc71' : '#a67c52'))) : '#8b4513'}"
+              />
+
+              <!-- Nose -->
+              <path
+                id="nose"
+                d="M 100 75 L 100 95"
+                stroke="#d4a574"
+                stroke-width="2"
+                fill="none"
+              />
+
+              <!-- Mouth -->
+              <path
+                id="mouth"
+                d="M 80 115 Q 100 125 120 115"
+                stroke="#dc143c"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+              />
+
+              <!-- Body -->
+              <rect
+                id="body"
+                x="65"
+                y="150"
+                width="70"
+                height="80"
+                rx="10"
+                fill="#667eea"
+                opacity="0.3"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Customization Controls -->
+        <div class="customization-section">
+          <h2>🎨 Customize</h2>
+          <form id="avatarForm" method="post" action="/save-avatar">
+            <input type="hidden" name="personType" th:value="${personType}" />
+
+            <!-- Skin Tone -->
+            <div class="customization-group">
+              <label>Skin Tone</label>
+              <div class="color-grid">
+                <div
+                  class="color-option active"
+                  data-value="light"
+                  style="background: #f4c2a0"
+                  onclick="selectOption(this, 'skinTone', 'light')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="medium"
+                  style="background: #d4a574"
+                  onclick="selectOption(this, 'skinTone', 'medium')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="dark"
+                  style="background: #9d7962"
+                  onclick="selectOption(this, 'skinTone', 'dark')"
+                ></div>
+              </div>
+              <input
+                type="hidden"
+                name="skinTone"
+                value="light"
+                id="skinToneInput"
+              />
+            </div>
+
+            <!-- Hair Style -->
+            <div class="customization-group">
+              <label>Hair Style</label>
+              <div class="option-grid">
+                <div
+                  class="option-btn active"
+                  data-value="long"
+                  onclick="selectOption(this, 'hairStyle', 'long')"
+                >
+                  Long
+                </div>
+                <div
+                  class="option-btn"
+                  data-value="short"
+                  onclick="selectOption(this, 'hairStyle', 'short')"
+                >
+                  Short
+                </div>
+                <div
+                  class="option-btn"
+                  data-value="curly"
+                  onclick="selectOption(this, 'hairStyle', 'curly')"
+                >
+                  Curly
+                </div>
+              </div>
+              <input
+                type="hidden"
+                name="hairStyle"
+                value="long"
+                id="hairStyleInput"
+              />
+            </div>
+
+            <!-- Hair Color -->
+            <div class="customization-group">
+              <label>Hair Color</label>
+              <div class="color-grid">
+                <div
+                  class="color-option active"
+                  data-value="black"
+                  style="background: #1a1a1a"
+                  onclick="selectOption(this, 'hairColor', 'black')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="brown"
+                  style="background: #6b4423"
+                  onclick="selectOption(this, 'hairColor', 'brown')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="blonde"
+                  style="background: #d4a574"
+                  onclick="selectOption(this, 'hairColor', 'blonde')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="red"
+                  style="background: #c41e3a"
+                  onclick="selectOption(this, 'hairColor', 'red')"
+                ></div>
+              </div>
+              <input
+                type="hidden"
+                name="hairColor"
+                value="black"
+                id="hairColorInput"
+              />
+            </div>
+
+            <!-- Eye Color -->
+            <div class="customization-group">
+              <label>Eye Color</label>
+              <div class="color-grid">
+                <div
+                  class="color-option active"
+                  data-value="brown"
+                  style="background: #8b4513"
+                  onclick="selectOption(this, 'eyeColor', 'brown')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="blue"
+                  style="background: #4a90e2"
+                  onclick="selectOption(this, 'eyeColor', 'blue')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="green"
+                  style="background: #2ecc71"
+                  onclick="selectOption(this, 'eyeColor', 'green')"
+                ></div>
+                <div
+                  class="color-option"
+                  data-value="hazel"
+                  style="background: #a67c52"
+                  onclick="selectOption(this, 'eyeColor', 'hazel')"
+                ></div>
+              </div>
+              <input
+                type="hidden"
+                name="eyeColor"
+                value="brown"
+                id="eyeColorInput"
+              />
+            </div>
+
+            <!-- Face Shape -->
+            <div class="customization-group">
+              <label>Face Shape</label>
+              <div class="option-grid">
+                <div
+                  class="option-btn active"
+                  data-value="round"
+                  onclick="selectOption(this, 'faceShape', 'round')"
+                >
+                  Round
+                </div>
+                <div
+                  class="option-btn"
+                  data-value="square"
+                  onclick="selectOption(this, 'faceShape', 'square')"
+                >
+                  Square
+                </div>
+                <div
+                  class="option-btn"
+                  data-value="oval"
+                  onclick="selectOption(this, 'faceShape', 'oval')"
+                >
+                  Oval
+                </div>
+              </div>
+              <input
+                type="hidden"
+                name="faceShape"
+                value="round"
+                id="faceShapeInput"
+              />
+            </div>
+
+            <!-- Mouth Shape -->
+            <div class="customization-group">
+              <label>Expression</label>
+              <div class="option-grid">
+                <div
+                  class="option-btn active"
+                  data-value="smile"
+                  onclick="selectOption(this, 'mouthShape', 'smile')"
+                >
+                  Smile
+                </div>
+                <div
+                  class="option-btn"
+                  data-value="neutral"
+                  onclick="selectOption(this, 'mouthShape', 'neutral')"
+                >
+                  Neutral
+                </div>
+                <div
+                  class="option-btn"
+                  data-value="heart"
+                  onclick="selectOption(this, 'mouthShape', 'heart')"
+                >
+                  Heart
+                </div>
+              </div>
+              <input
+                type="hidden"
+                name="mouthShape"
+                value="smile"
+                id="mouthShapeInput"
+              />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-section">
+              <button type="submit" class="btn btn-primary">
+                <span>💾</span>
+                <span>Save Avatar</span>
+              </button>
+              <a href="/" class="btn btn-secondary">
+                <span>🏠</span>
+                <span>Back to Home</span>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function selectOption(element, inputId, value) {
+        // Remove active class from siblings
+        const siblings = element.parentElement.querySelectorAll(
+          '[class*="option"], [class*="color-option"]',
+        );
+        siblings.forEach((sibling) => sibling.classList.remove("active"));
+
+        // Add active class to clicked element
+        element.classList.add("active");
+
+        // Update hidden input
+        const inputElement = document.getElementById(inputId + "Input");
+        if (inputElement) {
+          inputElement.value = value;
+        }
+
+        // Update avatar preview
+        updateAvatarPreview(inputId, value);
+      }
+
+      function updateAvatarPreview(property, value) {
+        const colorMap = {
+          skinTone: {
+            light: "#f4c2a0",
+            medium: "#d4a574",
+            dark: "#9d7962",
+          },
+          hairColor: {
+            black: "#1a1a1a",
+            brown: "#6b4423",
+            blonde: "#d4a574",
+            red: "#c41e3a",
+          },
+          eyeColor: {
+            brown: "#8b4513",
+            blue: "#4a90e2",
+            green: "#2ecc71",
+            hazel: "#a67c52",
+          },
+        };
+
+        if (property === "skinTone") {
+          document
+            .getElementById("face")
+            .setAttribute("fill", colorMap.skinTone[value]);
+        } else if (property === "hairColor") {
+          document
+            .getElementById("hair")
+            .setAttribute("fill", colorMap.hairColor[value]);
+          document.getElementById("hair").style.opacity = "1";
+        } else if (property === "eyeColor") {
+          document
+            .getElementById("left-iris")
+            .setAttribute("fill", colorMap.eyeColor[value]);
+          document
+            .getElementById("right-iris")
+            .setAttribute("fill", colorMap.eyeColor[value]);
+        } else if (property === "mouthShape") {
+          const mouth = document.getElementById("mouth");
+          if (value === "smile") {
+            mouth.setAttribute("d", "M 80 115 Q 100 125 120 115");
+          } else if (value === "neutral") {
+            mouth.setAttribute("d", "M 80 115 L 120 115");
+          } else if (value === "heart") {
+            mouth.setAttribute(
+              "d",
+              "M 85 110 L 100 120 L 115 110 Q 100 125 85 110",
+            );
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

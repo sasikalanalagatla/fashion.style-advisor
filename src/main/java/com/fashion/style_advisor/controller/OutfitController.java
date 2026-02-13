@@ -3,9 +3,11 @@ package com.fashion.style_advisor.controller;
 import com.fashion.style_advisor.enums.Climate;
 import com.fashion.style_advisor.enums.ClothingCategory;
 import com.fashion.style_advisor.enums.PersonType;
+import com.fashion.style_advisor.model.Avatar;
 import com.fashion.style_advisor.model.ClothingItem;
 import com.fashion.style_advisor.model.Outfit;
 import com.fashion.style_advisor.repository.ClothingItemRepository;
+import com.fashion.style_advisor.service.AvatarService;
 import com.fashion.style_advisor.service.OutfitService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,10 +23,12 @@ public class OutfitController {
 
     private final OutfitService outfitService;
     private final ClothingItemRepository clothingItemRepository;
+    private final AvatarService avatarService;
 
-    public OutfitController(OutfitService outfitService, ClothingItemRepository clothingItemRepository) {
+    public OutfitController(OutfitService outfitService, ClothingItemRepository clothingItemRepository, AvatarService avatarService) {
         this.outfitService = outfitService;
         this.clothingItemRepository = clothingItemRepository;
+        this.avatarService = avatarService;
     }
 
     @GetMapping("/")
@@ -38,6 +42,15 @@ public class OutfitController {
     public String suggestOutfit(@RequestParam Climate climate, @RequestParam PersonType personType, Model model) {
         Outfit outfit = outfitService.suggestOutfit(climate, personType);
         model.addAttribute("outfit", outfit);
+        
+        // Add avatar to model
+        List<Avatar> avatars = avatarService.getAvatarsByPersonType(personType);
+        if (!avatars.isEmpty()) {
+            model.addAttribute("avatar", avatars.get(0));
+        } else {
+            model.addAttribute("avatar", new Avatar("Default", personType));
+        }
+        
         return "outfit";
     }
 
@@ -45,6 +58,17 @@ public class OutfitController {
     public String getOutfit(@PathVariable Long id, Model model) {
         Outfit outfit = outfitService.getOutfitById(id);
         model.addAttribute("outfit", outfit);
+        
+        // Add avatar to model
+        if (outfit != null && outfit.getPersonType() != null) {
+            List<Avatar> avatars = avatarService.getAvatarsByPersonType(outfit.getPersonType());
+            if (!avatars.isEmpty()) {
+                model.addAttribute("avatar", avatars.get(0));
+            } else {
+                model.addAttribute("avatar", new Avatar("Default", outfit.getPersonType()));
+            }
+        }
+        
         return "outfit";
     }
 
@@ -87,6 +111,15 @@ public class OutfitController {
                                        Model model) {
         Outfit outfit = outfitService.suggestOutfitWithItem(itemId, category, climate, personType);
         model.addAttribute("outfit", outfit);
+        
+        // Add avatar to model
+        List<Avatar> avatars = avatarService.getAvatarsByPersonType(personType);
+        if (!avatars.isEmpty()) {
+            model.addAttribute("avatar", avatars.get(0));
+        } else {
+            model.addAttribute("avatar", new Avatar("Default", personType));
+        }
+        
         return "outfit";
     }
 }

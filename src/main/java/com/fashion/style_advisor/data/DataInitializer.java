@@ -7,6 +7,8 @@ import com.fashion.style_advisor.model.ClothingItem;
 import com.fashion.style_advisor.model.Outfit;
 import com.fashion.style_advisor.repository.ClothingItemRepository;
 import com.fashion.style_advisor.repository.OutfitRepository;
+import com.fashion.style_advisor.repository.AvatarPartRepository;
+import com.fashion.style_advisor.service.AvatarService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +20,15 @@ public class DataInitializer implements CommandLineRunner {
 
     private final ClothingItemRepository clothingItemRepository;
     private final OutfitRepository outfitRepository;
+    private final AvatarService avatarService;
+    private final AvatarPartRepository avatarPartRepository;
 
-    public DataInitializer(ClothingItemRepository clothingItemRepository, OutfitRepository outfitRepository) {
+    public DataInitializer(ClothingItemRepository clothingItemRepository, OutfitRepository outfitRepository,
+                          AvatarService avatarService, AvatarPartRepository avatarPartRepository) {
         this.clothingItemRepository = clothingItemRepository;
         this.outfitRepository = outfitRepository;
+        this.avatarService = avatarService;
+        this.avatarPartRepository = avatarPartRepository;
     }
 
     @Override
@@ -357,6 +364,10 @@ public class DataInitializer implements CommandLineRunner {
         items.add(createAndSaveItem("Fashion Rain Clip", ClothingCategory.ACCESSORY, Climate.RAINY, PersonType.FEMALE, "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400"));
 
         System.out.println("Sample data initialized successfully! Total items: " + items.size());
+        
+        // Initialize avatar parts for Snapchat-style avatar builder
+        avatarService.initializeAvatarParts();
+        System.out.println("Avatar parts initialized successfully!");
     }
 
     private ClothingItem createAndSaveItem(String name, ClothingCategory category, Climate climate, PersonType personType, String imagePath) {
