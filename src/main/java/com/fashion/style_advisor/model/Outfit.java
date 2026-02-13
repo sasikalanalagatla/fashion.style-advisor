@@ -38,6 +38,8 @@ public class Outfit {
     )
     private List<ClothingItem> accessories;
 
+    private String imageUrl;
+
     private int likes;
     private int dislikes;
 

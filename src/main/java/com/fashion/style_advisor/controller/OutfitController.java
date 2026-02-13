@@ -1,8 +1,11 @@
 package com.fashion.style_advisor.controller;
 
 import com.fashion.style_advisor.enums.Climate;
+import com.fashion.style_advisor.enums.ClothingCategory;
 import com.fashion.style_advisor.enums.PersonType;
+import com.fashion.style_advisor.model.ClothingItem;
 import com.fashion.style_advisor.model.Outfit;
+import com.fashion.style_advisor.repository.ClothingItemRepository;
 import com.fashion.style_advisor.service.OutfitService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,13 +14,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class OutfitController {
 
     private final OutfitService outfitService;
+    private final ClothingItemRepository clothingItemRepository;
 
-    public OutfitController(OutfitService outfitService) {
+    public OutfitController(OutfitService outfitService, ClothingItemRepository clothingItemRepository) {
         this.outfitService = outfitService;
+        this.clothingItemRepository = clothingItemRepository;
     }
 
     @GetMapping("/")
@@ -37,6 +44,48 @@ public class OutfitController {
     @GetMapping("/outfit/{id}")
     public String getOutfit(@PathVariable Long id, Model model) {
         Outfit outfit = outfitService.getOutfitById(id);
+        model.addAttribute("outfit", outfit);
+        return "outfit";
+    }
+
+    @GetMapping("/browse")
+    public String browseItems(@RequestParam(required = false) Climate climate,
+                             @RequestParam(required = false) PersonType personType,
+                             @RequestParam(required = false) ClothingCategory category,
+                             Model model) {
+        List<ClothingItem> items;
+
+        if (climate != null && personType != null && category != null) {
+            items = clothingItemRepository.findByClimateAndPersonTypeAndCategory(climate, personType, category);
+        } else if (climate != null && personType != null) {
+            items = clothingItemRepository.findByClimateAndPersonType(climate, personType);
+        } else if (climate != null) {
+            items = clothingItemRepository.findByClimate(climate);
+        } else if (personType != null) {
+            items = clothingItemRepository.findByPersonType(personType);
+        } else if (category != null) {
+            items = clothingItemRepository.findByCategory(category);
+        } else {
+            items = clothingItemRepository.findAll();
+        }
+
+        model.addAttribute("items", items);
+        model.addAttribute("climates", Climate.values());
+        model.addAttribute("personTypes", PersonType.values());
+        model.addAttribute("categories", ClothingCategory.values());
+        model.addAttribute("selectedClimate", climate);
+        model.addAttribute("selectedPersonType", personType);
+        model.addAttribute("selectedCategory", category);
+        return "browse_items";
+    }
+
+    @PostMapping("/suggest-with-item")
+    public String suggestOutfitWithItem(@RequestParam Long itemId,
+                                       @RequestParam ClothingCategory category,
+                                       @RequestParam Climate climate,
+                                       @RequestParam PersonType personType,
+                                       Model model) {
+        Outfit outfit = outfitService.suggestOutfitWithItem(itemId, category, climate, personType);
         model.addAttribute("outfit", outfit);
         return "outfit";
     }

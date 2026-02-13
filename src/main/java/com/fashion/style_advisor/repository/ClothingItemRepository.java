@@ -12,4 +12,9 @@ import java.util.List;
 @Repository
 public interface ClothingItemRepository extends JpaRepository<ClothingItem, Long> {
     List<ClothingItem> findByClimateAndPersonTypeAndCategory(Climate climate, PersonType personType, ClothingCategory category);
+    List<ClothingItem> findByClimate(Climate climate);
+    List<ClothingItem> findByPersonType(PersonType personType);
+    List<ClothingItem> findByCategory(ClothingCategory category);
+    List<ClothingItem> findByClimateAndPersonType(Climate climate, PersonType personType);
 }
+
